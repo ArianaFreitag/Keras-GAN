@@ -11,13 +11,31 @@ from keras.optimizers import Adam
 import matplotlib.pyplot as plt
 
 import sys
+import os
 
 import numpy as np
 
+def get_dataset():
+    file_path = os.path.join(os.getcwd(), 'data', 'train.npz')
+    train_data = np.load(file_path)['train_data'][:]
+
+    train_data_new = []
+
+    for data_index in range(len(train_data)):
+        train_data_new_image = []
+
+        for row in range(len(train_data[data_index])):
+            new_row = [x[0] for x in train_data[data_index][row]]
+            train_data_new_image.append(new_row)
+
+        train_data_new.append(train_data_new_image)
+
+    return train_data_new
+
 class GAN():
     def __init__(self):
-        self.img_rows = 28
-        self.img_cols = 28
+        self.img_rows = 64
+        self.img_cols = 128
         self.channels = 1
         self.img_shape = (self.img_rows, self.img_cols, self.channels)
         self.latent_dim = 100
@@ -92,7 +110,8 @@ class GAN():
     def train(self, epochs, batch_size=128, sample_interval=50):
 
         # Load the dataset
-        (X_train, _), (_, _) = mnist.load_data()
+        # (X_train, _), (_, _) = mnist.load_data()
+        X_train = np.array(get_dataset())
 
         # Rescale -1 to 1
         X_train = X_train / 127.5 - 1.
